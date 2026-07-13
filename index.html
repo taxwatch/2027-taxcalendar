@@ -155,7 +155,7 @@
     .disc{ animation:breathe 3.4s ease-in-out infinite; }
     @keyframes breathe{ 0%,100%{transform:scale(1);} 50%{transform:scale(1.05);} }
   }
-  .disc svg{ width:38%; margin-left:12%; fill:#fff; }
+  .disc svg{ width:42%; fill:#fff; }
   .overlay .hint{
     font-size:clamp(13px,3.4vw,15px); letter-spacing:.14em;
     color:#fff; text-shadow:0 1px 12px rgba(0,0,0,.6); font-weight:500;
@@ -191,7 +191,7 @@
     <video id="video" playsinline preload="metadata"></video>
     <button class="overlay" id="playBtn" aria-label="영상 재생">
       <span class="disc" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M9 6.5L9 17.5L18.5 12Z"/></svg>
       </span>
       <span class="hint">탭하여 재생</span>
     </button>
