@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>2027 절세달력</title>
+
+<!-- ===================================================================
+     ▣ 영상 설정
+     · 영상 파일은  video1.mp4 ~ video12.mp4  로 이름 붙여 같은 폴더에 올립니다.
+     · QR 은 월별로  ...주소/?m=1  ...주소/?m=2  ...  ...주소/?m=12  형태입니다.
+       (?m= 뒤 숫자가 몇 월인지를 알려줍니다. QR 만드는 단계에서 다시 안내할게요.)
+     =================================================================== -->
+<script>
+  const VIDEO_PATTERN    = "video{N}.mp4";       // 월별 영상 파일명 규칙
+  const DOWNLOAD_PATTERN = "TaxWatch_{N}월.mp4";  // 저장될 파일명 규칙
+  const DEFAULT_MONTH    = 1;                      // ?m= 이 없을 때 기본 월
+
+  // ▣ 월별 그림 제목 — 아래 12개 제목만 실제 제목으로 바꾸면 됩니다.
+  const TITLES = {
+    1:  "눈이 오면",
+    2:  "비숑의 집",
+    3:  "을지로 아메리카노",
+    4:  "또 왔네!",
+    5:  "한강의 파수꾼",
+    6:  "청계천의 왕",
+    7:  "부산 여행",
+    8:  "입국장 마스코트",
+    9:  "퇴근길 잠실나루",
+    10: "일요일 아침",
+    11: "다빈치 리허설",
+    12: "이제 집에 가자"
+  };
+
+  // ▣ 월별 그림 설명 (3줄 정도) — 줄바꿈은 \n. 비워두면("") 화면에 안 나옵니다.
+  const DESCRIPTIONS = {
+    1:  "하얗게 눈 덮인 골목, 익숙한 길도 새롭게 빛난다.\n사랑하는 이와 반려견의 발걸음이 겨울 풍경에 포개진다.\n눈이 오면 평범한 하루도 따뜻한 추억이 된다.",
+    2:  "포근한 거실 한편, 비숑이 가장 편한 자리를 차지한다.\n함께 화면을 들여다보는 시간도 이 집에서는 작은 행복이 되고,\n모두의 시선과 웃음은 자연스레 비숑에게 머문다.",
+    3:  "바쁜 을지로의 거리, 나란히 걷는 두 사람.\n손에 든 아메리카노처럼 담백한 일상이 흐른다.\n익숙한 도시 풍경 속, 잠시 머무는 따뜻한 순간.",
+    4:  "봄볕이 내려앉은 담벼락, 오늘도 그 자리에 노란 고양이가 있다.\n따뜻해진 볕을 따라 이 골목에도 봄이 스며드는 모양이다.\n\"또 왔네!\" 반가운 마음에 나도 모르게 웃음이 난다.",
+    5:  "한강 바람을 맞으며 천천히 달리는 오후,\n자전거 바구니의 작은 파수꾼은 오늘도 강변을 살핀다.\n익숙한 풍경을 지키듯, 둘만의 산책이 이어진다.",
+    6:  "초여름 청계천, 러너들의 발걸음이 물가를 따라 이어진다.\n그 사이 돌 위에 꼿꼿이 선 왜가리 한 마리.\n누가 뭐래도 이 물길의 진짜 주인은 바로 저 녀석이다.",
+    7:  "해안 마을의 좁은 골목에도 한여름 볕이 가득하다.\n낯선 여행지에서 만난 다정한 얼굴들, 마음이 스르르 풀린다.\n바다를 곁에 둔 한 잔의 여유로 오늘만큼은 시간을 잊는다.",
+    8:  "캐리어를 찾아 든 손끝에서 여행의 여운이 아직 맴돈다.\n벨트 위를 종종거리는 탐지견이 오늘도 제 몫을 다하는 중.\n작지만 야무진 이 친구야말로 입국장의 숨은 주인공이다.",
+    9:  "창밖 나뭇잎에 어느새 가을빛이 스며들었다.\n열차를 기다리는 짧은 시간, 나란히 앉아 나누는 온기 한 모금.\n익숙한 퇴근길이 오늘따라 조금 더 다정하게 느껴진다.",
+    10: "창으로 든 가을 햇살이 거실을 나른하게 감싼다.\n따뜻한 차 한 주전자를 곁에 두고, 저마다의 방식으로 아침을 맞는다.\n함께라는 것만으로 충분한, 더없이 다정한 일요일.",
+    11: "관객의 박수도, 연사의 목소리도 아직 도착하지 않은 다빈치홀.\n저마다의 자리에서 무언가를 매만지는 손길들이 공간을 천천히 데운다.\n보이지 않는 이 시간이 있어, 늦가을의 무대는 오늘도 따뜻하게 피어난다.",
+    12: "하얗게 쌓인 눈 위로 겨울 하루가 천천히 저물어간다.\n뺨은 시리지만 마음은 어느 때보다 따뜻했던 시간.\n아쉬움을 뒤로하고, 이제 온기 가득한 집으로 돌아갈 시간이다."
+  };
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* ============================================================
+       ▣ 색상 테마 — 아래 값만 바꾸면 화면 전체 색이 바뀝니다.
+       (현재: 밝은 테마 + 포인트 컬러 #9DAD70 버튼)
+       ============================================================ */
+    --bg-center:  #FFFFFF;   /* 배경색 (가운데)            */
+    --bg-edge:    #FFFFFF;   /* 배경색 (바깥쪽)            */
+    --text:       #1A1A1A;   /* 안내 글자 색               */
+
+    --btn-bg:     #9DAD70;   /* 다운로드 버튼 배경색(포인트)*/
+    --btn-text:   #1A1A1A;   /* 다운로드 버튼 글자색        */
+
+    --frame:      rgba(0,0,0,.12); /* 영상 테두리 선 */
+
+    /*  ▷ 어두운 테마로 되돌리려면:
+        --bg-center:#171D26; --bg-edge:#0E1116; --text:#F3F1EC;
+        --btn-bg:#9DAD70; --btn-text:#1A1A1A; --frame:rgba(243,241,236,.14);   */
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ height:100%; }
+
+  body{
+    font-family:"IBM Plex Sans KR",system-ui,sans-serif;
+    background:radial-gradient(120% 90% at 50% 40%, var(--bg-center) 0%, var(--bg-edge) 62%);
+    color:var(--text);
+    min-height:100dvh;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    gap:clamp(16px,3vh,26px);
+    padding:max(24px,env(safe-area-inset-top)) 20px max(24px,env(safe-area-inset-bottom));
+    overflow:hidden;
+    -webkit-tap-highlight-color:transparent;
+  }
+
+  /* ── 그림 제목 + 설명 ── */
+  .caption{
+    display:flex; flex-direction:column; align-items:center;
+    gap:15px;            /* 제목 ↔ 설명 간격 (기존 9 + 6) */
+    margin-top:10px;     /* 영상 ↔ 제목 간격 +10px */
+    max-width:min(88vw,560px);
+  }
+  .title{
+    font-size:clamp(17px,4.4vw,20px);
+    font-weight:600;
+    letter-spacing:-.01em;
+    color:var(--text);
+    text-align:center;
+    line-height:1.4;
+    margin:0;
+    word-break:keep-all;
+  }
+  .desc{
+    font-size:clamp(12.5px,3.3vw,14px);
+    font-weight:400;
+    color:rgba(26,26,26,.58);
+    text-align:center;
+    line-height:1.75;
+    margin:0;
+    white-space:pre-line;   /* \n 을 줄바꿈으로 표시 */
+    word-break:keep-all;
+  }
+  .desc:empty{ display:none; }
+
+  /* ── 영상 무대 ── */
+  .player{
+    position:relative;
+    display:inline-flex; line-height:0;
+    border-radius:18px; overflow:hidden;
+    background:#000;
+    box-shadow:0 0 0 1px var(--frame), 0 30px 80px -30px rgba(0,0,0,.9);
+    max-width:min(92vw,600px);
+  }
+  video{
+    display:block; width:auto; height:auto;
+    max-width:min(92vw,600px); max-height:58dvh;
+    object-fit:contain; background:#000;
+  }
+  video:not([data-ready]){ width:min(80vw,400px); height:min(80vw,400px); }
+
+  /* ── 탭하여 재생 오버레이 (영상 위에 표시되므로 흰색 고정) ── */
+  .overlay{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:16px;
+    background:linear-gradient(180deg, rgba(14,17,22,.18), rgba(14,17,22,.42));
+    cursor:pointer; border:0; font-family:inherit;
+    transition:opacity .45s ease;
+  }
+  .overlay[hidden]{ display:none; }
+  .overlay.is-gone{ opacity:0; pointer-events:none; }
+  .disc{
+    width:clamp(66px,17vw,82px); aspect-ratio:1; border-radius:50%;
+    display:grid; place-items:center;
+    background:rgba(255,255,255,.12);
+    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+    box-shadow:0 0 0 1px rgba(255,255,255,.35), 0 10px 30px -8px rgba(0,0,0,.6);
+  }
+  @media (prefers-reduced-motion: no-preference){
+    .disc{ animation:breathe 3.4s ease-in-out infinite; }
+    @keyframes breathe{ 0%,100%{transform:scale(1);} 50%{transform:scale(1.05);} }
+  }
+  .disc svg{ width:38%; margin-left:12%; fill:#fff; }
+  .overlay .hint{
+    font-size:clamp(13px,3.4vw,15px); letter-spacing:.14em;
+    color:#fff; text-shadow:0 1px 12px rgba(0,0,0,.6); font-weight:500;
+  }
+  .replay .hint{ letter-spacing:.10em; }
+
+  /* ── 다운로드 버튼 (밝게 꽉 채워 또렷하게) ── */
+  .dl{
+    display:inline-flex; align-items:center; gap:9px;
+    padding:13px 24px; border-radius:999px; border:0;
+    background:var(--btn-bg); color:var(--btn-text);
+    font-family:inherit; font-size:15px; font-weight:700; letter-spacing:.01em;
+    cursor:pointer;
+    box-shadow:0 8px 24px -10px rgba(0,0,0,.6);
+    transition:filter .18s ease, transform .1s ease;
+  }
+  .dl:hover{ filter:brightness(.93); }
+  .dl:active{ transform:translateY(1px); }
+  .dl:disabled{ opacity:.55; cursor:default; }
+  .dl:focus-visible{ outline:2px solid var(--text); outline-offset:3px; }
+  .dl-ico{ width:19px; height:19px; flex:none; }
+
+  .error{
+    display:none; text-align:center; color:var(--text); opacity:.7;
+    font-size:14px; line-height:1.6; padding:0 12px;
+  }
+  .error code{ opacity:1; font-weight:700; }
+</style>
+</head>
+<body>
+
+  <div class="player" id="player">
+    <video id="video" playsinline preload="metadata"></video>
+    <button class="overlay" id="playBtn" aria-label="영상 재생">
+      <span class="disc" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </span>
+      <span class="hint">탭하여 재생</span>
+    </button>
+  </div>
+
+  <div class="caption">
+    <p class="title" id="title"></p>
+    <p class="desc" id="desc"></p>
+  </div>
+
+  <button class="dl" id="dl">
+    <svg class="dl-ico" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 3v10m0 0l-4-4m4 4l4-4M5 19h14" fill="none"
+            stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <span class="dl-label">영상 다운로드</span>
+  </button>
+
+  <p class="error" id="error">
+    영상을 불러오지 못했어요.<br>
+    <code id="errName"></code> 파일이 같은 폴더에 있는지 확인해 주세요.
+  </p>
+
+<script>
+  // 몇 월인지 URL(?m=)에서 읽기 — 없으면 기본 월
+  const params = new URLSearchParams(location.search);
+  let m = parseInt(params.get('m'), 10);
+  if (!(m >= 1 && m <= 12)) m = DEFAULT_MONTH;
+
+  const VIDEO         = VIDEO_PATTERN.replace('{N}', m);
+  const DOWNLOAD_NAME = DOWNLOAD_PATTERN.replace('{N}', m);
+
+  const video   = document.getElementById('video');
+  const playBtn = document.getElementById('playBtn');
+  const dlBtn   = document.getElementById('dl');
+  const dlLabel = dlBtn.querySelector('.dl-label');
+  const errBox  = document.getElementById('error');
+  const errName = document.getElementById('errName');
+  document.getElementById('title').textContent = TITLES[m] || "";
+  document.getElementById('desc').textContent  = DESCRIPTIONS[m] || "";
+  document.title = "2027 절세달력" + (TITLES[m] ? ": " + TITLES[m] : "");
+
+  video.src = VIDEO;
+  video.addEventListener('loadedmetadata', () => video.setAttribute('data-ready', ''));
+
+  // 재생: 탭하면 소리와 함께 재생
+  playBtn.addEventListener('click', async () => {
+    try {
+      video.controls = true;
+      await video.play();
+      playBtn.classList.add('is-gone');
+      setTimeout(() => { playBtn.hidden = true; }, 500);
+    } catch (e) { showError(); }
+  });
+
+  // 끝나면 '다시 보기'
+  video.addEventListener('ended', () => {
+    playBtn.hidden = false;
+    playBtn.classList.remove('is-gone');
+    playBtn.classList.add('replay');
+    playBtn.querySelector('.hint').textContent = '다시 보기';
+    video.controls = false;
+    video.currentTime = 0;
+  });
+
+  video.addEventListener('error', showError);
+
+  // 다운로드
+  dlBtn.addEventListener('click', async () => {
+    const original = dlLabel.textContent;
+    dlBtn.disabled = true;
+    dlLabel.textContent = '다운로드 중…';
+    try {
+      const res = await fetch(VIDEO, { cache: 'no-store' });
+      if (!res.ok) throw new Error('fetch failed');
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      triggerSave(url, true);
+    } catch (e) {
+      triggerSave(VIDEO, false);
+    } finally {
+      dlBtn.disabled = false;
+      dlLabel.textContent = original;
+    }
+  });
+
+  function triggerSave(href, isBlob){
+    const a = document.createElement('a');
+    a.href = href; a.download = DOWNLOAD_NAME;
+    if (!isBlob) a.target = '_blank';
+    document.body.appendChild(a); a.click(); a.remove();
+    if (isBlob) setTimeout(() => URL.revokeObjectURL(href), 4000);
+  }
+
+  function showError(){
+    errName.textContent = VIDEO;
+    errBox.style.display = 'block';
+    document.getElementById('player').style.display = 'none';
+  }
+</script>
+</body>
+</html>
