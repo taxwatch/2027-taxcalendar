@@ -83,7 +83,7 @@
     display:flex; flex-direction:column;
     align-items:center; justify-content:center;
     gap:clamp(16px,3vh,26px);
-    padding:max(24px,env(safe-area-inset-top)) 20px max(24px,env(safe-area-inset-bottom));
+    padding:max(24px,env(safe-area-inset-top)) 20px calc(env(safe-area-inset-bottom) + 40px);
     overflow:hidden;
     -webkit-tap-highlight-color:transparent;
   }
@@ -183,6 +183,16 @@
     font-size:14px; line-height:1.6; padding:0 12px;
   }
   .error code{ opacity:1; font-weight:700; }
+
+  /* ── 하단 저작권 표시 ── */
+  .copyright{
+    position:fixed; left:0; right:0;
+    bottom:max(12px, env(safe-area-inset-bottom));
+    text-align:center;
+    font-size:11px; letter-spacing:.02em;
+    color:rgba(26,26,26,.38);
+    margin:0; pointer-events:none;
+  }
 </style>
 </head>
 <body>
@@ -215,6 +225,8 @@
     영상을 불러오지 못했어요.<br>
     <code id="errName"></code> 파일이 같은 폴더에 있는지 확인해 주세요.
   </p>
+
+  <p class="copyright">ⓒ 2027. Taxwatch All rights reserved.</p>
 
 <script>
   // 몇 월인지 URL(?m=)에서 읽기 — 없으면 기본 월
