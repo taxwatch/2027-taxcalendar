@@ -193,6 +193,15 @@
     color:rgba(26,26,26,.38);
     margin:0; pointer-events:none;
   }
+
+  /* ── iOS(WebKit) 전용 보정 ──
+     iOS는 주소창이 하단에 있어 버튼·저작권이 붙어 보이므로,
+     영상 높이를 살짝 줄이고 아래 여백을 더 확보해 간격을 벌립니다.
+     (안드로이드/데스크톱에는 적용되지 않음) */
+  @supports (-webkit-touch-callout: none){
+    video{ max-height:52dvh; }
+    body{ padding-bottom: calc(env(safe-area-inset-bottom) + 60px); }
+  }
 </style>
 </head>
 <body>
